@@ -11,18 +11,20 @@ export class UserService {
 
   async createUser(createUserDto: CreateUserDto) {
     const existUser = await this.repository.findUserByEmail(createUserDto.email)
-
     if (existUser) {
       throw new ConflictException('Email already in use.')
     }
 
     const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
+    const hashedPassword = await bcrypt.hash(createUserDto.password, salt)
 
-    return this.repository.createUser({
+    const user = await this.repository.createUser({
       ...createUserDto,
-      password: hashedPassword
+    password: hashedPassword
     })
+
+    const { password, ...userWithoutPassword } = user
+    return userWithoutPassword
   }
 
   async getAllUsers() {
