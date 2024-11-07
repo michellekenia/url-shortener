@@ -18,7 +18,7 @@ export class UserRepository {
         return this.prismaService.user.create({data})
     }
 
-    async finAllUser(){
+    async findAllUser(){
         return this.prismaService.user.findMany()
     }
 
