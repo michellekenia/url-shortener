@@ -10,26 +10,26 @@ export class UserService {
   constructor(private readonly repository: UserRepository) { }
 
   private sanitizeUser(user: any) {
-    if (!user) return null;
-    const { password, ...sanitizedUser } = user;
-    return sanitizedUser;
+    if (!user) return null
+    const { password, ...sanitizedUser } = user
+    return sanitizedUser
   }
 
   private sanitizeUsers(users: any[]) {
-    return users.map(this.sanitizeUser);
+    return users.map(this.sanitizeUser)
   }
 
-  async createUser(createUserDto: CreateUserDto) {
-    const existUser = await this.repository.findUserByEmail(createUserDto.email)
+  async createUser(data: CreateUserDto) {
+    const existUser = await this.repository.findUserByEmail(data.email)
     if (existUser) {
       throw new ConflictException('Email already in use.')
     }
 
     const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(createUserDto.password, salt)
+    const hashedPassword = await bcrypt.hash(data.password, salt)
 
     const user = await this.repository.createUser({
-      ...createUserDto,
+      ...data,
       password: hashedPassword
     })
 
@@ -59,19 +59,19 @@ export class UserService {
     return user
   }
 
-  async updateUser(id: string, updateUserDto: UpdateUserDto) {
+  async updateUser(id: string, data: UpdateUserDto) {
     const user = await this.getUserById(id)
 
     if (!user) {
       throw new NotFoundException('User not found.')
     }
 
-    if (updateUserDto.password) {
-      const salt = await bcrypt.genSalt();
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, salt)
+    if (data.password) {
+      const salt = await bcrypt.genSalt()
+      data.password = await bcrypt.hash(data.password, salt)
     }
 
-    const updatedUser = await this.repository.updateUser(id, updateUserDto)
+    const updatedUser = await this.repository.updateUser(id, data)
     return this.sanitizeUser(updatedUser)
   }
 

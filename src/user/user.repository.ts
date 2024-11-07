@@ -31,7 +31,7 @@ export class UserRepository {
 
     async updateUser(id: string, data: UpdateUserDto) {
       return this.prismaService.user.update({
-        where: { id},
+        where: { id },
         data
       })
 
