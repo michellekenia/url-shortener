@@ -9,6 +9,16 @@ import * as bcrypt from 'bcrypt';
 export class UserService {
   constructor(private readonly repository: UserRepository) { }
 
+  private sanitizeUser(user: any) {
+    if (!user) return null;
+    const { password, ...sanitizedUser } = user;
+    return sanitizedUser;
+  }
+
+  private sanitizeUsers(users: any[]) {
+    return users.map(this.sanitizeUser);
+  }
+
   async createUser(createUserDto: CreateUserDto) {
     const existUser = await this.repository.findUserByEmail(createUserDto.email)
     if (existUser) {
@@ -20,15 +30,15 @@ export class UserService {
 
     const user = await this.repository.createUser({
       ...createUserDto,
-    password: hashedPassword
+      password: hashedPassword
     })
 
-    const { password, ...userWithoutPassword } = user
-    return userWithoutPassword
+    return this.sanitizeUser(user)
   }
 
   async getAllUsers() {
-    return this.repository.findAllUser()
+    const users = await this.repository.findAllUsers()
+    return this.sanitizeUsers(users)
   }
 
   async getUserById(id: string) {
@@ -37,7 +47,7 @@ export class UserService {
     if (!user) {
       throw new NotFoundException('User not found.')
     }
-    return user
+    return this.sanitizeUser(user)
   }
 
   async getUserByEmail(email: string) {
@@ -58,10 +68,11 @@ export class UserService {
 
     if (updateUserDto.password) {
       const salt = await bcrypt.genSalt();
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, salt);
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, salt)
     }
 
-    return this.repository.updateUser(id, updateUserDto)
+    const updatedUser = await this.repository.updateUser(id, updateUserDto)
+    return this.sanitizeUser(updatedUser)
   }
 
   async deleteUser(id: string) {
@@ -70,7 +81,8 @@ export class UserService {
       throw new NotFoundException('User not found.')
     }
 
-    return this.repository.deleteUser(id)
+    const deletedUser = await this.repository.deleteUser(id)
+    return this.sanitizeUser(deletedUser)
   }
 
 }

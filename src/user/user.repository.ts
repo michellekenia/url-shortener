@@ -13,7 +13,7 @@ export class UserRepository {
         })
     }
 
-    async findAllUser() {
+    async findAllUsers() {
         return this.prismaService.user.findMany()
     }
 
