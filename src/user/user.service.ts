@@ -11,12 +11,16 @@ export class UserService {
     return this.repository.createUser(createUserDto)
   }
 
-  async findAllUser() {
+  async getAllUsers() {
     return this.repository.findAllUser()
   }
 
-  async findUserById(id: string) {
+  async getUserById(id: string) {
     return this.repository.findUserById(id)
+  }
+
+  async getUserByEmail(email: string) {
+    return this.repository.findUserByEmail(email)
   }
 
   async updateUser(id: string, updateUserDto: UpdateUserDto) {

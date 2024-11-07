@@ -34,6 +34,18 @@ export class UserRepository {
 
     }
 
+    async findUserByEmail(email: string) {
+        const user = await this.prismaService.user.findUnique({
+            where: {email: email}
+        })
+
+        if (!user) {
+            throw new NotFoundException('User not found.')
+        }
+        return user
+
+    }
+
     async updateUser(id: string, data:UpdateUserDto) {
         const user = await this.findUserById(id)
         if(!user) {
